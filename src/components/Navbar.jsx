@@ -93,11 +93,7 @@ function Navbar() {
         
             </div>
           </div>
-          <Filter />
         </div>
-        
-          
-          
       </nav>
     </header>
   );
