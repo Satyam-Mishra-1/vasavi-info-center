@@ -1,8 +1,58 @@
-// src/components/RegisterForm.jsx
+
+
+import { UserPlus } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import API from './api';
+import { useNavigate } from 'react-router-dom';
+
+const locationData = {
+  countries: [
+    { id: 'in', name: 'India' },
+    { id: 'us', name: 'United States' },
+  ],
+  states: {
+    in: [
+      { id: 'mh', name: 'Maharashtra' },
+      { id: 'ka', name: 'Karnataka' },
+    ],
+    us: [
+      { id: 'ny', name: 'New York' },
+      { id: 'ca', name: 'California' },
+    ],
+  },
+  districts: {
+    mh: [
+      { id: 'nag', name: 'Nagpur' },
+      { id: 'mum', name: 'Mumbai' },
+    ],
+    ka: [
+      { id: 'blg', name: 'Bangalore' },
+      { id: 'mys', name: 'Mysore' },
+    ],
+    ny: [
+      { id: 'nyc', name: 'New York City' },
+    ],
+    ca: [
+      { id: 'la', name: 'Los Angeles' },
+    ],
+  },
+  mandals: {
+    nag: [
+      { id: 'nag1', name: 'Nagpur North' },
+      { id: 'nag2', name: 'Nagpur South' },
+    ],
+    mum: [
+      { id: 'mum1', name: 'Andheri' },
+      { id: 'mum2', name: 'Borivali' },
+    ],
+    blg: [
+      { id: 'blg1', name: 'BTM Layout' },
+      { id: 'blg2', name: 'Indiranagar' },
+    ],
+  },
+};
 
 const RegisterForm = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     role: 'Promoter',
@@ -19,15 +69,32 @@ const RegisterForm = () => {
   const [locations, setLocations] = useState({ countries: [], states: [], districts: [], mandals: [] });
 
   useEffect(() => {
-    API.get('/locations/countries').then(res => {
-      setLocations(prev => ({ ...prev, countries: res.data }));
-    });
+    setLocations(prev => ({ ...prev, countries: locationData.countries }));
   }, []);
 
   const fetchChildren = (type, parentId) => {
-    API.get(`/locations?parentId=${parentId}`).then(res => {
-      setLocations(prev => ({ ...prev, [type]: res.data }));
-    });
+    let data = [];
+
+    if (type === 'states') {
+      data = locationData.states[parentId] || [];
+    } else if (type === 'districts') {
+      data = locationData.districts[parentId] || [];
+    } else if (type === 'mandals') {
+      data = locationData.mandals[parentId] || [];
+    }
+
+    setLocations(prev => ({ ...prev, [type]: data }));
+
+    // Clear dependent dropdowns
+    if (type === 'states') {
+      setLocations(prev => ({ ...prev, districts: [], mandals: [] }));
+      setFormData(prev => ({ ...prev, state: '', district: '', mandal: '' }));
+    } else if (type === 'districts') {
+      setLocations(prev => ({ ...prev, mandals: [] }));
+      setFormData(prev => ({ ...prev, district: '', mandal: '' }));
+    } else if (type === 'mandals') {
+      setFormData(prev => ({ ...prev, mandal: '' }));
+    }
   };
 
   const handleChange = e => {
@@ -47,52 +114,93 @@ const RegisterForm = () => {
     }
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = e => {
     e.preventDefault();
     const payload = {
       ...formData,
       location: formData.mandal || formData.manualCity,
     };
-
-    await API.post('/auth/register', payload);
-    alert('Registered successfully!');
+    console.log('Payload to be submitted:', payload);
+    
+    alert('Form submitted successfully !');
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-xl mx-auto p-6 shadow-xl bg-white rounded-xl">
-      <h2 className="text-2xl font-bold">Register</h2>
-      <input name="name" placeholder="Name" onChange={handleChange} required className="input" />
-      <select name="role" onChange={handleChange} className="input">
-        <option value="Promoter">Promoter</option>
-        <option value="Chairman">Chairman</option>
-        <option value="Coordinator">Coordinator</option>
-      </select>
-      <input name="phone" placeholder="Phone" onChange={handleChange} required className="input" />
-      <input name="email" placeholder="Email" onChange={handleChange} className="input" />
-      <input type="password" name="password" placeholder="Password" onChange={handleChange} required className="input" />
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="w-full space-y-8 p-8 bg-white rounded-xl shadow-lg">
+    <div className="text-center">
+          <UserPlus className="mx-auto h-12 w-12 text-indigo-600" />
+          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Create your account</h2>
+        </div>
 
-      {/* Location hierarchy */}
-      <select name="country" onChange={e => handleLocationChange('country', e.target.value)} className="input" required>
-        <option value="">Select Country</option>
-        {locations.countries.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
-      </select>
-      <select name="state" onChange={e => handleLocationChange('state', e.target.value)} className="input" required>
-        <option value="">Select State</option>
-        {locations.states.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
-      </select>
-      <select name="district" onChange={e => handleLocationChange('district', e.target.value)} className="input" required>
-        <option value="">Select District</option>
-        {locations.districts.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
-      </select>
-      <select name="mandal" onChange={handleChange} className="input">
-        <option value="">Select Mandal (or enter manually)</option>
-        {locations.mandals.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
-      </select>
 
-      <input name="manualCity" placeholder="Enter City Manually (if not listed)" onChange={handleChange} className="input" />
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-xl mx-auto p-6 shadow-xl bg-white rounded-xl mt-10 mb-20 border border-gray-300 shadow-2xl">
+  <h2 className="text-2xl font-bold">Register</h2>
 
-      <button type="submit" className="btn-primary">Register</button>
-    </form>
+  <div>
+    <input name="name" placeholder="Name" onChange={handleChange} required className="w-full p-2 border rounded" />
+  </div>
+
+  <div>
+    <select name="role" onChange={handleChange} className="w-full p-2 border rounded">
+      <option value="Promoter">Promoter</option>
+      <option value="Chairman">Chairman</option>
+      <option value="Coordinator">Coordinator</option>
+    </select>
+  </div>
+
+  <div>
+    <input name="phone" placeholder="Phone" onChange={handleChange} required className="w-full p-2 border rounded" />
+  </div>
+
+  <div>
+    <input name="email" placeholder="Email" onChange={handleChange} className="w-full p-2 border rounded" />
+  </div>
+
+  <div>
+    <input type="password" name="password" placeholder="Password" onChange={handleChange} required className="w-full p-2 border rounded" />
+  </div>
+
+  <div>
+    <select name="country" onChange={e => handleLocationChange('country', e.target.value)} className="w-full p-2 border rounded" required>
+      <option value="">Select Country</option>
+      {locations.countries.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
+    </select>
+  </div>
+
+  <div>
+    <select name="state" onChange={e => handleLocationChange('state', e.target.value)} className="w-full p-2 border rounded" required>
+      <option value="">Select State</option>
+      {locations.states.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
+    </select>
+  </div>
+
+  <div>
+    <select name="district" onChange={e => handleLocationChange('district', e.target.value)} className="w-full p-2 border rounded" required>
+      <option value="">Select District</option>
+      {locations.districts.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
+    </select>
+  </div>
+
+  <div>
+    <select name="mandal" onChange={handleChange} className="w-full p-2 border rounded">
+      <option value="">Select Mandal (or enter manually)</option>
+      {locations.mandals.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
+    </select>
+  </div>
+
+  <div>
+    <input name="manualCity" placeholder="Enter City Manually (if not listed)" onChange={handleChange} className="w-full p-2 border rounded" />
+  </div>
+
+  <div>
+    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white p-2 rounded">Register</button>
+  </div>
+</form>
+
+</div>
+</div>
+
   );
 };
 

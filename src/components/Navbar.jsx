@@ -2,9 +2,25 @@ import { Link } from 'react-router-dom';
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn } from 'react-icons/fa';
 import RegisterForm from '../auth/RegisterForm';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import Filter from './Filter';
+
 
 function Navbar() {
+  const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
+  const { isAuthenticated , logout , login} = useAuth();
+
+  
+
+
+
+  const handleLogOut = () => {            // clears auth
+      logout();     
+      navigate('/login');  
+  };
+
   return (
     <header>
       <div className="bg-yellow-600 text-white py-2">
@@ -49,21 +65,39 @@ function Navbar() {
             <div className="flex space-x-6">
               <Link to="/" className="hover:text-pink-500">Home</Link>
               <Link to="/information" className="hover:text-pink-500">Information</Link>
-              <Link to="/events" className="hover:text-pink-500">Events</Link>
+              <Link to="/events"  className="hover:text-pink-500">Events</Link>
               <Link to="/mandalchart" className="hover:text-pink-500">MandalChart</Link>
               <div className="relative group">
                 <Link to="/services" className="hover:text-pink-500 flex items-center">
                   Other Services <span className="ml-1">▼</span>
                 </Link>
               </div>
-              <Link to="/contact" className="hover:text-pink-500">Contact Us</Link>
-              <button className="bg-pink-500 text-white px-4 py-2 rounded-md hover:bg-pink-600" onClick={() => setShowForm(true)} >
-                Register Now
+              <Link to="/contact"  className="hover:text-pink-500">Contact Us</Link>
+            
+              { !isAuthenticated ?  (<>
+                  <button className="bg-pink-500 text-white px-4 py-2 rounded-md hover:bg-pink-600" onClick={() => navigate('/register')} >
+                  Register Now
+                </button>
+
+                <button className="bg-pink-500 text-white px-4 py-2 rounded-md hover:bg-pink-600" onClick={() => navigate('/login')} >
+                   Login
+                </button>
+
+              </>
+              ) : (
+                <button className="bg-pink-500 text-white px-4 py-2 rounded-md hover:bg-pink-600" onClick={handleLogOut} >
+                  Logout
               </button>
+              )
+            }    
         
             </div>
           </div>
+          <Filter />
         </div>
+        
+          
+          
       </nav>
     </header>
   );
