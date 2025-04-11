@@ -6,18 +6,18 @@ function Filter({ selectedFilters, setSelectedFilters, getAvailableOptions }) {
     setSelectedFilters((prev) => ({
       ...prev,
       [name]: value,
-      ...(name === "country" && { state: "", mandal: "", region: "", category: "" }),
-      ...(name === "state" && { mandal: "", region: "", category: "" }),
-      ...(name === "mandal" && { region: "", category: "" }),
-      ...(name === "region" && { category: "" }),
+      ...(name === "country" && { state: "", district: "", region: "", category: "" }),
+      ...(name === "state" && { district: "", region: "", category: "" }),
+      ...(name === "district" && { region: "", category: "" }),
+      ...(name === "city" && { category: "" }),
     }));
   };
-
+    
   const filterFields = [
     { id: "country", label: "Country" },
     { id: "state", label: "State" },
-    { id: "mandal", label: "Mandal" },
-    { id: "region", label: "Region" },
+    { id: "district", label: "District" },
+    { id: "city", label: "City" },
     { id: "category", label: "Category" },
   ];
 
@@ -35,7 +35,7 @@ function Filter({ selectedFilters, setSelectedFilters, getAvailableOptions }) {
             onChange={handleChange}
             className="w-full border border-gray-300 rounded-md px-2 py-1 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
           >
-            <option value="">All</option>
+           <option value="">All</option>
             {getAvailableOptions(filter.id).map((option) => (
               <option key={option} value={option}>
                 {option}

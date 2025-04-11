@@ -15,6 +15,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Register from './auth/Register';
 import Dashboard from './auth/Dashboard';
 import Filter from './components/Filter';
+import TempleDetails from './pages/TempleDetails';
 
 // ✅ PrivateRoute uses useAuth properly, as it's rendered *within* AuthProvider
 const PrivateRoute = ({ children }) => {
@@ -38,6 +39,7 @@ const AppRoutes = () => {
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/register" element={<RegisterForm />} />
           <Route path="/mandalchart" element={<Filter />} /> 
+          <Route path="/mandalchart/temple" element={<TempleDetails />} /> 
       
     
 
